@@ -9,7 +9,7 @@ var ErrStoreFull = errors.New("Store is full")
 type Storer interface {
 	Get(key string) (string, error)
 	Set(key, value string) error
-	// Keys() []string
+	Keys() []string
 	Delete(key string)
 	Len() int
 }

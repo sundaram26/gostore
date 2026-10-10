@@ -2,6 +2,7 @@ package ttl
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/sundaram26/gostore/store"
@@ -28,6 +29,18 @@ func NewTTLStore(ttl time.Duration) *TTLStore {
 		data: make(map[string]ttlEntry),
 		ttl: ttl,
 	}
+}
+
+func (s *TTLStore) Keys() []string {
+	keys := make([]string, 0, len(s.data))
+	// sort the keys alphabetically
+	for key := range s.data {
+		keys = append(keys, key)
+	}
+
+	slices.Sort(keys)
+
+	return keys
 }
 
 // func (t *TTLStore) SetKeyWithEncryption(key, val string, ttl time.Duration) (string, error) {

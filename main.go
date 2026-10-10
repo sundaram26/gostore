@@ -3,32 +3,28 @@ package main
 import (
 	"github.com/sundaram26/gostore/store"
 	"github.com/sundaram26/gostore/store/kv"
-	"github.com/sundaram26/gostore/store/ttl"
 
 	"encoding/base64"
 	"fmt"
-	"time"
 )
 
 func main() {
-	kvStore := kv.NewStore(20)
-
-	encrypted, err := SetKeyWithEncryption(kvStore, "a", "hey you can see me")
+	s := CreateStore()
+	
+	encrypted, err := SetKeyWithEncryption(s, "a", "hey you can see me")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	fmt.Println(encrypted)
+}
 
-	ttlKVStore := ttl.NewTTLStore(time.Second * 2)
-	encryptedTTL, err := SetKeyWithEncryption(ttlKVStore, "a", "Hey you can read me")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+func CreateStore() store.Storer {
+	plain := kv.NewStore(20)
+	logger := NewLoggingMiddleware(plain)
 
-	fmt.Println(encryptedTTL)
+	return logger
 }
 
 func SetKeyWithEncryption(store store.Storer, key, val string) (string, error) {
@@ -36,6 +32,9 @@ func SetKeyWithEncryption(store store.Storer, key, val string) (string, error) {
 	if err := store.Set(key, encoded); err != nil {
 		return "", err
 	}
+
+	store.Len()
+	store.Get("key")
 
 	return store.Get(key)
 }
