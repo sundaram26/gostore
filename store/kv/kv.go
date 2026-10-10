@@ -1,15 +1,12 @@
-package main
+package kv
 
 import (
-	"errors"
 	"fmt"
 	"slices"
-	"encoding/base64"
+
+	"github.com/sundaram26/gostore/store"
 )
 
-var ErrKeyDoesNotExist = errors.New("Key does not exist")
-var ErrEmptyKey = errors.New("empty key")
-var ErrStoreFull = errors.New("Store is full")
 
 type Store struct {
 	data map[string]string
@@ -25,15 +22,6 @@ func NewStore(maxSize int) *Store {
 	return &Store{
 		data: make(map[string]string),
 	}
-}
-
-func (s *Store) SetKeyWithEncryption(key, val string) (string, error) {
-	encoded := base64.StdEncoding.EncodeToString([]byte(val))
-	if err := s.Set(key, encoded); err != nil {
-		return "", err
-	}
-
-	return s.Get(key)
 }
 
 func (s *Store) Len() int {
@@ -55,7 +43,7 @@ func (s *Store) Keys() []string {
 
 func (s *Store) Get(key string) (string, error) {
 	if key == ""{
-		return "", ErrEmptyKey
+		return "", store.ErrEmptyKey
 	}
 
 	val, ok := s.data[key]
@@ -72,14 +60,14 @@ func (s *Store) Get(key string) (string, error) {
 
 func (s *Store) Set(key, value string) error {
 	if key == "" {
-		return ErrEmptyKey
+		return store.ErrEmptyKey
 	}
 
 	_, exists := s.data[key]
 
 	// we are at capacity && is this a new key
 	if s.maxSize > 0 && s.Len() >= s.maxSize && !exists {
-		return fmt.Errorf("Set(%q): %w", key, ErrStoreFull)
+		return fmt.Errorf("Set(%q): %w", key, store.ErrStoreFull)
 	}
 	
 	s.data[key] = value

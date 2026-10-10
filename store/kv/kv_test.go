@@ -1,9 +1,11 @@
-package main
+package kv
 
 import (
 	"errors"
 	"reflect"
 	"testing"
+
+	"github.com/sundaram26/gostore/store"
 )
 
 func TestKeys_ReturnsAllKeysSorted(t *testing.T){
@@ -31,9 +33,9 @@ func TestKyes_EmptyStore(t *testing.T) {
 }
 
 func TestSetGet_EmptyKeys(t *testing.T) {
-	store := NewStore(1)
+	kvStore := NewStore(1)
 
-	if _, err := store.Get(""); err == nil || !errors.Is(err, ErrEmptyKey){
+	if _, err := kvStore.Get(""); err == nil || !errors.Is(err, store.ErrEmptyKey){
 		t.Error("Get() failed")
 	}
 }
