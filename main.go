@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"github.com/sundaram26/gostore/store"
 	"github.com/sundaram26/gostore/store/kv"
 
@@ -10,17 +9,41 @@ import (
 )
 
 func main() {
-	plain := kv.NewStore(20)
-	logger := NewLoggingMiddleware(plain)
-	metric := NewMetricMiddleware(logger)
-	encrypted, err := SetKeyWithEncryption(metric, "a", "hey you can see me")
-	if err != nil {
-		fmt.Println(err)
-		return
+	// original := kv.NewStore(20)
+	// logger := NewLoggingMiddleware(original)
+	// metric := NewMetricMiddleware(logger)
+	
+	// newStore := original.Clone()
+	// newStore.Set("env", "production")
+
+	
+
+	// encrypted, err := SetKeyWithEncryption(metric, "a", "hey you can see me")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// fmt.Println(encrypted)
+	// metric.Report()
+
+	// fmt.Println(original)
+	// fmt.Println(newStore)
+
+	cmds := []Command{
+		{Op: "SET", Key: "env", Value: "production"},
+		{Op: "SET", Key: "version", Value: "0.0.1"},
+		{Op: "SET", Key: "debug", Value: "true"},
+		{Op: "GET", Key: "env"},
+		{Op: "SET", Key: "region", Value: "eu-west-1"},
+		{Op: "GET", Key: "version"},
 	}
 
-	fmt.Println(encrypted)
-	metric.Report()
+	s := kv.NewStore(0)
+	RestoreOnBoot(s, cmds)
+
+	fmt.Println("restored, store size: ", s.Len())
+	fmt.Println("keys: ", s.Keys())
 }
 
 // func CreateStore() store.Storer {

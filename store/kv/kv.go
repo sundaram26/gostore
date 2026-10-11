@@ -14,14 +14,23 @@ type Store struct {
 }
 
 func NewStore(maxSize int) *Store {
-
-	if maxSize < 0 {
-		fmt.Println("Size should be greater than 0")
-	}
-	
 	return &Store{
 		data: make(map[string]string),
+		maxSize: maxSize,
 	}
+}
+
+func (s *Store) Clone() *Store {
+	cp := &Store {
+		data: make(map[string]string, len(s.data)),
+		maxSize: s.maxSize,
+	}
+
+	for k, v := range s.data {
+		cp.data[k] = v
+	}
+
+	return cp
 }
 
 func (s *Store) Len() int {
