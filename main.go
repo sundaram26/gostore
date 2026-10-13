@@ -30,20 +30,35 @@ func main() {
 	// fmt.Println(original)
 	// fmt.Println(newStore)
 
-	cmds := []Command{
-		{Op: "SET", Key: "env", Value: "production"},
-		{Op: "SET", Key: "version", Value: "0.0.1"},
-		{Op: "SET", Key: "debug", Value: "true"},
-		{Op: "GET", Key: "env"},
-		{Op: "SET", Key: "region", Value: "eu-west-1"},
-		{Op: "GET", Key: "version"},
-	}
+	// cmds := []Command{
+	// 	{Op: "SET", Key: "env", Value: "production"},
+	// 	{Op: "SET", Key: "version", Value: "0.0.1"},
+	// 	{Op: "SET", Key: "debug", Value: "true"},
+	// 	{Op: "GET", Key: "env"},
+	// 	{Op: "SET", Key: "region", Value: "eu-west-1"},
+	// 	{Op: "GET", Key: "version"},
+	// }
+
+	// s := kv.NewStore(0)
+	// RestoreOnBoot(s, cmds)
+
+	// fmt.Println("restored, store size: ", s.Len())
+	// fmt.Println("keys: ", s.Keys())
 
 	s := kv.NewStore(0)
+	s.Set("pageview", "0")
+
+	const hits = 1000
+	cmds := make([]Command, hits)
+	for i := range cmds{
+		cmds[i] = Command{ Op: "INCR", Key: "pageviews" }
+	}
+
 	RestoreOnBoot(s, cmds)
 
-	fmt.Println("restored, store size: ", s.Len())
-	fmt.Println("keys: ", s.Keys())
+	got, _ := s.Get("pageviews")
+	fmt.Printf("expected: %d\n", hits)
+	fmt.Printf("got: %s\n", got)
 }
 
 // func CreateStore() store.Storer {

@@ -3,6 +3,7 @@ package ttl
 import (
 	"fmt"
 	"slices"
+	// "strconv"
 	"time"
 
 	"github.com/sundaram26/gostore/store"
@@ -90,4 +91,30 @@ func (t *TTLStore) Delete(key string) {
 
 func (t *TTLStore) Len() int {
 	return len(t.data)
+}
+
+func (t *TTLStore) Incr(key string) (int, error) {
+	// if key == "" {
+	// 	return 0, store.ErrEmptyKey
+	// }
+	
+	// // Read
+	// current := 0
+	// if raw, ok := t.data[key]; ok {
+	// 	v, err := strconv.Atoi(raw) // string -> int
+	// 	if err != nil {
+	// 		return 0, fmt.Errorf("INCR %q: %w", key, err)
+	// 	}
+	// 	current = v
+	// }
+
+	// // Modify
+	// current++
+	// time.Sleep(time.Microsecond) //simulate some work
+
+	// // Write
+	// t.data[key] = strconv.Itoa(current) // int -> string
+
+	// return current, nil
+	return 0, nil	
 }

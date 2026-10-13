@@ -22,6 +22,8 @@ func dispatch(s store.Storer, c Command){
 			s.Set(c.Key, c.Value)
 		case "GET":
 			s.Get(c.Key)
+		case "INCR":
+			s.Incr(c.Key)
 	}
 }
 
@@ -30,15 +32,15 @@ func RestoreOnBoot(s store.Storer, cmds []Command) {
 	var wg sync.WaitGroup
 
 	for _, c := range cmds {
-		// wg.Go(func(){
-		// 	dispatch(s, c)
-		// })
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func(){
 			dispatch(s, c)
-		}()
+		})
+
+		// wg.Add(1)
+		// go func() {
+		// 	defer wg.Done()
+		// 	dispatch(s, c)
+		// }()
 	}
 
 	wg.Wait()
