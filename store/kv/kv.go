@@ -12,7 +12,7 @@ import (
 
 
 type Store struct {
-	mu sync.Mutex
+	mu sync.RWMutex
 	data map[string]string
 	maxSize int // 0 = unlimited
 }
@@ -25,14 +25,14 @@ func NewStore(maxSize int) *Store {
 }
 
 func (s *Store) Clone() *Store {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	
 	cp := &Store {
 		data: make(map[string]string, len(s.data)),
 		maxSize: s.maxSize,
 	}
 
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	
 	for k, v := range s.data {
 		cp.data[k] = v
 	}
@@ -41,15 +41,15 @@ func (s *Store) Clone() *Store {
 }
 
 func (s *Store) Len() int {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return len(s.data)
 }
 
 // Keys returns every key currently in the store, sorted alphabetically.
 func (s *Store) Keys() []string {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	keys := make([]string, 0, len(s.data))
 	
 	// sort the keys alphabetically
@@ -67,8 +67,10 @@ func (s *Store) Get(key string) (string, error) {
 		return "", store.ErrEmptyKey
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	time.Sleep(time.Millisecond) //simulate some work
 
 	val, ok := s.data[key]
 	if !ok {

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"sync"
+	"time"
+
 	"github.com/sundaram26/gostore/store"
 	"github.com/sundaram26/gostore/store/kv"
 
@@ -45,20 +48,46 @@ func main() {
 	// fmt.Println("restored, store size: ", s.Len())
 	// fmt.Println("keys: ", s.Keys())
 
-	s := kv.NewStore(0)
-	s.Set("pageview", "0")
+	// s := kv.NewStore(0)
+	// s.Set("pageview", "0")
 
-	const hits = 1000
-	cmds := make([]Command, hits)
-	for i := range cmds{
-		cmds[i] = Command{ Op: "INCR", Key: "pageviews" }
+	// const hits = 1000
+	// cmds := make([]Command, hits)
+	// for i := range cmds{
+	// 	cmds[i] = Command{ Op: "INCR", Key: "pageviews" }
+	// }
+
+	// RestoreOnBoot(s, cmds)
+
+	// got, _ := s.Get("pageviews")
+	// fmt.Printf("expected: %d\n", hits)
+	// fmt.Printf("got: %s\n", got)
+
+
+// Benchmark: how long do many concurrent readers take?
+// 
+// Run it once now, then refactor the store Lock to RLock
+//  - with sync.Mutex: 5.141 ms
+//  - with sync.RWMutex: mx
+
+	store := kv.NewStore(0)
+	store.Set("name", "jane")
+
+	const readers = 1225
+	const readsEach = 10
+
+	start := time.Now()
+	var wg sync.WaitGroup
+	for range readers {
+		wg.Go(func() {
+			for range readsEach {
+				store.Get("name")
+			}
+		})
 	}
+	wg.Wait()
 
-	RestoreOnBoot(s, cmds)
-
-	got, _ := s.Get("pageviews")
-	fmt.Printf("expected: %d\n", hits)
-	fmt.Printf("got: %s\n", got)
+	fmt.Printf("%d readers did %d concurrent reads in %s\n", readers, readers*readsEach, time.Since(start).Round(time.Millisecond))
 }
 
 // func CreateStore() store.Storer {
